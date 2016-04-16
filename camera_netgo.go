@@ -20,7 +20,7 @@ func (*EdgeScroller) Priority() int            { return 10 }
 func (*EdgeScroller) AddEntity(*ecs.Entity)    {}
 func (*EdgeScroller) RemoveEntity(*ecs.Entity) {}
 func (*EdgeScroller) New(*ecs.World) {
-	log.Println("EdgeScroller is not yet supported in the browser")
+	log.Println("EdgeScroller is not yet supported with gopherjs")
 }
 
 func (c *EdgeScroller) Update(dt float32) {}
