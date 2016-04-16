@@ -1,4 +1,4 @@
-// +build !windows
+// +build !windows,!netgo
 
 package engo
 
@@ -6,13 +6,12 @@ package engo
 
 import (
 	"bytes"
+	"encoding/binary"
 	"errors"
 	"fmt"
 	"io"
 	"sync"
 	"time"
-
-	"encoding/binary"
 
 	"golang.org/x/mobile/exp/audio/al"
 )
