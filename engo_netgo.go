@@ -1,3 +1,5 @@
+//+build netgo
+
 package engo
 
 import (
@@ -22,6 +24,15 @@ func CreateWindow(title string, width, height int, fullscreen bool) {
 	target := document.Call("getElementById", title)
 	if target == nil {
 		target = document.Get("body")
+		if target == nil {
+			// We haven't found a body, let's create one!
+			target = document.Call("createElement", "body")
+			if target == nil {
+				log.Println("Failed to get body, and failed to create it")
+				closeEvent()
+				return
+			}
+		}
 	}
 	target.Call("appendChild", canvas)
 
@@ -35,7 +46,9 @@ func CreateWindow(title string, width, height int, fullscreen bool) {
 	var err error
 	Gl, err = webgl.NewContext(canvas, attrs)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		closeEvent()
+		return
 	}
 
 	js.Global.Set("onunload", func() {
@@ -212,3 +225,5 @@ func requestAnimationFrame(callback func(float32)) int {
 func cancelAnimationFrame(id int) {
 	js.Global.Call("cancelAnimationFrame")
 }
+
+func runPlatformPreparation() {}

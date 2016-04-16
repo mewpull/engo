@@ -15,7 +15,7 @@ func (game *GameWorld) Preload() {
 
 	// This could be done individually: engo.Files.Add("data/icon.png"), etc
 	// Second value (false) says whether to check recursively or not
-	engo.Files.AddFromDir("data", false)
+	engo.Files.Add("data/icon.png", "data/rock.png")
 
 	log.Println("Preloaded")
 }
@@ -48,7 +48,7 @@ func (game *GameWorld) Setup(w *ecs.World) {
 
 func (*GameWorld) Hide()        {}
 func (*GameWorld) Show()        {}
-func (*GameWorld) Exit() 		{}
+func (*GameWorld) Exit()        {}
 func (*GameWorld) Type() string { return "GameWorld" }
 
 type ScaleSystem struct {

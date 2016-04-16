@@ -3,14 +3,11 @@ package engo // import "engo.io/engo"
 import (
 	"fmt"
 	"image/color"
+	"log"
+	"time"
 
 	"engo.io/ecs"
 	"engo.io/webgl"
-	"log"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
 )
 
 var (
@@ -116,6 +113,7 @@ func Run(opts RunOptions, defaultScene Scene) {
 // RunPreparation is called only once, and is called automatically when calling Open
 // It is only here for benchmarking in combination with OpenHeadlessNoRun
 func RunPreparation(defaultScene Scene) {
+	runPlatformPreparation()
 	keyStates = make(map[Key]bool)
 	Time = NewClock()
 	Files = NewLoader()
@@ -131,14 +129,6 @@ func runHeadless(defaultScene Scene) {
 }
 
 func runLoop(defaultScene Scene, headless bool) {
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
-	signal.Notify(c, syscall.SIGTERM)
-	go func() {
-		<-c
-		closeEvent()
-	}()
-
 	RunPreparation(defaultScene)
 
 	ticker := time.NewTicker(time.Duration(int(time.Second) / fpsLimit))

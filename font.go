@@ -133,6 +133,5 @@ func (f *Font) Render(text string) *Texture {
 	nrgba := f.RenderNRGBA(text)
 
 	// Create texture
-	imObj := &ImageObject{nrgba}
-	return NewTexture(imObj)
+	return NewTexture(NewImageObjectFromNRGBA(nrgba))
 }

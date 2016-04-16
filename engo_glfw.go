@@ -3,22 +3,14 @@
 package engo
 
 import (
-	"image"
-	"image/draw"
-	_ "image/png"
-	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/signal"
 	"runtime"
 	"syscall"
-	"time"
 
 	"engo.io/webgl"
 	"github.com/go-gl/glfw/v3.1/glfw"
-	"github.com/golang/freetype"
-	"github.com/golang/freetype/truetype"
 )
 
 var (
@@ -332,4 +324,14 @@ func init() {
 	NumNine = Key(glfw.KeyKP9)
 	NumDecimal = Key(glfw.KeyKPDecimal)
 	NumEnter = Key(glfw.KeyKPEnter)
+}
+
+func runPlatformPreparation() {
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	signal.Notify(c, syscall.SIGTERM)
+	go func() {
+		<-c
+		closeEvent()
+	}()
 }

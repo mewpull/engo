@@ -5,15 +5,15 @@ import (
 	"log"
 	"math/rand"
 
-	"engo.io/engo"
 	"engo.io/ecs"
+	"engo.io/engo"
 )
 
 type Game struct{}
 
 func (game *Game) Preload() {
 	// Add all the files in the data directory non recursively
-	engo.Files.AddFromDir("data", false)
+	engo.Files.Add("data/icon.png", "data/rock.png")
 }
 
 func (game *Game) Setup(w *ecs.World) {
@@ -51,7 +51,7 @@ func (game *Game) Setup(w *ecs.World) {
 
 func (*Game) Hide()        {}
 func (*Game) Show()        {}
-func (*Game) Exit() 	   {}
+func (*Game) Exit()        {}
 func (*Game) Type() string { return "Game" }
 
 type ControlSystem struct {

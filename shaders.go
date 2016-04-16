@@ -34,7 +34,7 @@ type defaultShader struct {
 
 func (s *defaultShader) Initialize(width, height float32) {
 	s.program = LoadShader(`
-#version 120
+//#version 100
 
 attribute vec2 in_Position;
 attribute vec2 in_TexCoords;
@@ -159,7 +159,7 @@ type hudShader struct {
 
 func (s *hudShader) Initialize(width, height float32) {
 	s.program = LoadShader(`
-#version 120
+//#version 100
 
 attribute vec2 in_Position;
 attribute vec2 in_TexCoords;
@@ -271,6 +271,12 @@ var (
 func initShaders(width, height float32) {
 	if !shadersSet {
 		fmt.Println("Initialized shaders", width, height)
+		if width == 0 {
+			width = 100
+		}
+		if height == 0 {
+			height = 100
+		}
 		DefaultShader.Initialize(width, height)
 		HUDShader.Initialize(width, height)
 

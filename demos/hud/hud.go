@@ -41,7 +41,7 @@ func generateBackground() *ecs.Entity {
 			}
 		}
 	}
-	bgTexture := engo.NewImageObject(img)
+	bgTexture := engo.NewImageObjectFromNRGBA(img)
 	field := ecs.NewEntity("RenderSystem")
 	fieldRender := engo.NewRenderComponent(engo.NewTexture(bgTexture), engo.Point{1, 1}, "Background1")
 	fieldSpace := &engo.SpaceComponent{engo.Point{0, 0}, worldWidth, worldHeight}
@@ -60,7 +60,7 @@ func generateHUDBackground(width, height float32) *ecs.Entity {
 			img.Set(i, j, c1)
 		}
 	}
-	bgTexture := engo.NewImageObject(img)
+	bgTexture := engo.NewImageObjectFromNRGBA(img)
 	field := ecs.NewEntity("RenderSystem")
 	fieldRender := engo.NewRenderComponent(engo.NewTexture(bgTexture), engo.Point{1, 1}, "HUDBackground1")
 	fieldRender.SetShader(engo.HUDShader)
@@ -102,7 +102,7 @@ func (game *Game) Setup(w *ecs.World) {
 
 func (*Game) Hide()        {}
 func (*Game) Show()        {}
-func (*Game) Exit() 	   {}
+func (*Game) Exit()        {}
 func (*Game) Type() string { return "Game" }
 
 func main() {
@@ -110,7 +110,6 @@ func main() {
 		Title:  "HUD Demo",
 		Width:  1024,
 		Height: 640,
-		
 	}
 	engo.Run(opts, &Game{})
 }

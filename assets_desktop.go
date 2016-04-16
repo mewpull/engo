@@ -2,6 +2,15 @@
 
 package engo
 
+import (
+	"image"
+	"image/draw"
+	"io"
+	"io/ioutil"
+	"log"
+	"os"
+)
+
 func loadImage(r Resource) (Image, error) {
 	file, err := os.Open(r.url)
 	if err != nil {
@@ -28,10 +37,6 @@ func loadJSON(r Resource) (string, error) {
 	return string(file), nil
 }
 
-func NewImageObject(img *image.NRGBA) *ImageObject {
-	return &ImageObject{img}
-}
-
 type ImageObject struct {
 	data *image.NRGBA
 }
@@ -46,6 +51,10 @@ func (i *ImageObject) Width() int {
 
 func (i *ImageObject) Height() int {
 	return i.data.Rect.Max.Y
+}
+
+func NewImageObjectFromNRGBA(i *image.NRGBA) *ImageObject {
+	return &ImageObject{i}
 }
 
 func LoadImage(data interface{}) Image {

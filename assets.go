@@ -3,6 +3,7 @@ package engo
 import (
 	"image"
 	"image/color"
+	_ "image/png"
 	"io/ioutil"
 	"log"
 	"os"
@@ -47,6 +48,7 @@ func NewResource(url string) Resource {
 	return Resource{name: name, url: url, kind: kind[1:]}
 }
 
+/*
 func (l *Loader) AddFromDir(url string, recurse bool) {
 	files, err := ioutil.ReadDir(url)
 	if err != nil {
@@ -61,6 +63,7 @@ func (l *Loader) AddFromDir(url string, recurse bool) {
 		}
 	}
 }
+*/
 
 func (l *Loader) Add(urls ...string) {
 	for _, u := range urls {
@@ -147,6 +150,7 @@ func LoadShader(vertSrc, fragSrc string) *webgl.Program {
 	program := Gl.CreateProgram()
 	Gl.AttachShader(program, vertShader)
 	Gl.AttachShader(program, fragShader)
+
 	Gl.LinkProgram(program)
 
 	return program
