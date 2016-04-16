@@ -21,7 +21,7 @@ func (game *GameWorld) Setup(w *ecs.World) {
 	w.AddSystem(&engo.RenderSystem{})
 	w.AddSystem(&HideSystem{})
 
-	guy := ecs.NewEntity("RenderSystem", "HideSystem")
+	guy := ecs.NewBasic("RenderSystem", "HideSystem")
 	texture := engo.Files.Image("rock.png")
 	render := engo.NewRenderComponent(texture, engo.Point{8, 8}, "guy")
 	collision := &engo.CollisionComponent{Solid: true, Main: true}
@@ -54,7 +54,7 @@ func (*HideSystem) Type() string { return "HideSystem" }
 
 func (s *HideSystem) New(*ecs.World) {}
 
-func (c *HideSystem) UpdateEntity(entity *ecs.Entity, dt float32) {
+func (c *HideSystem) UpdateEntity(entity *ecs.BasicEntity, dt float32) {
 	var render *engo.RenderComponent
 	if !entity.Component(&render) {
 		return

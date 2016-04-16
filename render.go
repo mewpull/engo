@@ -186,7 +186,7 @@ func (ren *RenderComponent) generateBufferContent() []float32 {
 	return []float32{x1, y1, u, v, tint, x4, y4, u2, v, tint, x3, y3, u2, v2, tint, x2, y2, u, v2, tint}
 }
 
-type renderEntityList []*ecs.Entity
+type renderEntityList []*ecs.BasicEntity
 
 func (r renderEntityList) Len() int {
 	return len(r)
@@ -238,12 +238,12 @@ func (rs *RenderSystem) New(w *ecs.World) {
 	})
 }
 
-func (rs *RenderSystem) AddEntity(e *ecs.Entity) {
+func (rs *RenderSystem) AddEntity(e *ecs.BasicEntity) {
 	rs.renders = append(rs.renders, e)
 	rs.sortingNeeded = true
 }
 
-func (rs *RenderSystem) RemoveEntity(e *ecs.Entity) {
+func (rs *RenderSystem) RemoveEntity(e *ecs.BasicEntity) {
 	var removeIndex int = -1
 	for index, entity := range rs.renders {
 		if entity.ID() == e.ID() {

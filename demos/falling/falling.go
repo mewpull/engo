@@ -28,7 +28,7 @@ func (game *Game) Setup(w *ecs.World) {
 	w.AddSystem(&RockSpawnSystem{})
 
 	// Create new entity subscribed to all the systems!
-	guy := ecs.NewEntity("RenderSystem", "ControlSystem", "RockSpawnSystem", "CollisionSystem", "DeathSystem")
+	guy := ecs.NewBasic("RenderSystem", "ControlSystem", "RockSpawnSystem", "CollisionSystem", "DeathSystem")
 	texture := engo.Files.Image("icon.png")
 	render := engo.NewRenderComponent(texture, engo.Point{4, 4}, "guy")
 	// Tell the collision system that this player is solid
@@ -64,7 +64,7 @@ func (*ControlSystem) Post()        {}
 
 func (control *ControlSystem) New(*ecs.World) {}
 
-func (control *ControlSystem) UpdateEntity(entity *ecs.Entity, dt float32) {
+func (control *ControlSystem) UpdateEntity(entity *ecs.BasicEntity, dt float32) {
 	var space *engo.SpaceComponent
 	if !entity.Component(&space) {
 		return
@@ -103,7 +103,7 @@ func (rock *RockSpawnSystem) New(w *ecs.World) {
 	rock.world = w
 }
 
-func (rock *RockSpawnSystem) UpdateEntity(entity *ecs.Entity, dt float32) {
+func (rock *RockSpawnSystem) UpdateEntity(entity *ecs.BasicEntity, dt float32) {
 	// 4% change of spawning a rock each frame
 	if rand.Float32() < .96 {
 		return
@@ -117,8 +117,8 @@ func (rock *RockSpawnSystem) UpdateEntity(entity *ecs.Entity, dt float32) {
 	}
 }
 
-func NewRock(position engo.Point) *ecs.Entity {
-	rock := ecs.NewEntity("RenderSystem", "FallingSystem", "CollisionSystem")
+func NewRock(position engo.Point) *ecs.BasicEntity {
+	rock := ecs.NewBasic("RenderSystem", "FallingSystem", "CollisionSystem")
 
 	texture := engo.Files.Image("rock.png")
 	render := engo.NewRenderComponent(texture, engo.Point{4, 4}, "rock")
@@ -140,7 +140,7 @@ func (*FallingSystem) Type() string { return "FallingSystem" }
 
 func (fs *FallingSystem) New(*ecs.World) {}
 
-func (fs *FallingSystem) UpdateEntity(entity *ecs.Entity, dt float32) {
+func (fs *FallingSystem) UpdateEntity(entity *ecs.BasicEntity, dt float32) {
 	var space *engo.SpaceComponent
 	if !entity.Component(&space) {
 		return
@@ -165,7 +165,7 @@ func (ds *DeathSystem) New(*ecs.World) {
 	})
 }
 
-func (fs *DeathSystem) UpdateEntity(entity *ecs.Entity, dt float32) {}
+func (fs *DeathSystem) UpdateEntity(entity *ecs.BasicEntity, dt float32) {}
 
 func (fs *DeathSystem) Receive(message engo.Message) {
 	collision, isCollision := message.(engo.CollisionMessage)

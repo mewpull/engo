@@ -94,7 +94,7 @@ func (m *MouseSystem) Post() {
 }
 
 // UpdateEntity sets the MouseComponent values for each Entity
-func (m *MouseSystem) UpdateEntity(entity *ecs.Entity, dt float32) {
+func (m *MouseSystem) UpdateEntity(entity *ecs.BasicEntity, dt float32) {
 	mx := m.mouseX
 	my := m.mouseY
 

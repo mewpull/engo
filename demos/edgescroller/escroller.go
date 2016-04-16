@@ -19,7 +19,7 @@ var (
 )
 
 // generateBackground creates a background of green tiles - might not be the most efficient way to do this
-func generateBackground() *ecs.Entity {
+func generateBackground() *ecs.BasicEntity {
 	rect := image.Rect(0, 0, int(worldWidth), int(worldHeight))
 	img := image.NewNRGBA(rect)
 	c1 := color.RGBA{102, 153, 0, 255}
@@ -42,7 +42,7 @@ func generateBackground() *ecs.Entity {
 		}
 	}
 	bgTexture := engo.NewImageObject(img)
-	field := ecs.NewEntity("RenderSystem")
+	field := ecs.NewBasic("RenderSystem")
 	fieldRender := engo.NewRenderComponent(engo.NewTexture(bgTexture), engo.Point{1, 1}, "Background1")
 	fieldSpace := &engo.SpaceComponent{engo.Point{0, 0}, worldWidth, worldHeight}
 	field.AddComponent(fieldRender)

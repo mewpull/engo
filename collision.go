@@ -56,8 +56,8 @@ func (*CollisionComponent) Type() string {
 }
 
 type CollisionMessage struct {
-	Entity *ecs.Entity
-	To     *ecs.Entity
+	Entity *ecs.BasicEntity
+	To     *ecs.BasicEntity
 }
 
 func (collision CollisionMessage) Type() string {
@@ -79,7 +79,7 @@ func (cs *CollisionSystem) RunInParallel() bool {
 	return len(cs.Entities) > 40 // turning point for CollisionSystem
 }
 
-func (cs *CollisionSystem) UpdateEntity(entity *ecs.Entity, dt float32) {
+func (cs *CollisionSystem) UpdateEntity(entity *ecs.BasicEntity, dt float32) {
 	var (
 		space     *SpaceComponent
 		collision *CollisionComponent

@@ -30,7 +30,7 @@ func (game *IconScene) Setup(w *ecs.World) {
 	w.AddSystem(&ScaleSystem{})
 	w.AddSystem(&SceneSwitcherSystem{NextScene: "RockScene", WaitTime: time.Second * 3})
 
-	guy := ecs.NewEntity("RenderSystem", "ScaleSystem")
+	guy := ecs.NewBasic("RenderSystem", "ScaleSystem")
 	texture := engo.Files.Image("icon.png")
 	render := engo.NewRenderComponent(texture, engo.Point{8, 8}, "icon")
 	collision := &engo.CollisionComponent{Solid: true, Main: true}
@@ -69,7 +69,7 @@ func (game *RockScene) Setup(w *ecs.World) {
 	w.AddSystem(&ScaleSystem{})
 	w.AddSystem(&SceneSwitcherSystem{NextScene: "IconScene", WaitTime: time.Second * 3})
 
-	guy := ecs.NewEntity("RenderSystem", "ScaleSystem")
+	guy := ecs.NewBasic("RenderSystem", "ScaleSystem")
 	texture := engo.Files.Image("rock.png")
 	render := engo.NewRenderComponent(texture, engo.Point{8, 8}, "rock")
 	collision := &engo.CollisionComponent{Solid: true, Main: true}
@@ -103,8 +103,8 @@ type SceneSwitcherSystem struct {
 
 func (*SceneSwitcherSystem) Type() string             { return "SceneSwitcherSystem" }
 func (*SceneSwitcherSystem) Priority() int            { return 1 }
-func (*SceneSwitcherSystem) AddEntity(*ecs.Entity)    {}
-func (*SceneSwitcherSystem) RemoveEntity(*ecs.Entity) {}
+func (*SceneSwitcherSystem) AddEntity(*ecs.BasicEntity)    {}
+func (*SceneSwitcherSystem) RemoveEntity(*ecs.BasicEntity) {}
 func (*SceneSwitcherSystem) New(*ecs.World)           {}
 
 func (s *SceneSwitcherSystem) Update(dt float32) {
@@ -128,7 +128,7 @@ func (*ScaleSystem) Type() string { return "ScaleSystem" }
 
 func (s *ScaleSystem) New(*ecs.World) {}
 
-func (c *ScaleSystem) UpdateEntity(entity *ecs.Entity, dt float32) {
+func (c *ScaleSystem) UpdateEntity(entity *ecs.BasicEntity, dt float32) {
 	var render *engo.RenderComponent
 	if !entity.Component(&render) {
 		return

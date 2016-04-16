@@ -51,8 +51,8 @@ func (*GameWorld) Show()        {}
 func (*GameWorld) Exit() 	 	{}
 func (*GameWorld) Type() string { return "GameWorld" }
 
-func (game *GameWorld) CreateEntity(point *engo.Point, spriteSheet *engo.Spritesheet, action *engo.AnimationAction) *ecs.Entity {
-	entity := ecs.NewEntity("AnimationSystem", "RenderSystem", "ControlSystem")
+func (game *GameWorld) CreateEntity(point *engo.Point, spriteSheet *engo.Spritesheet, action *engo.AnimationAction) *ecs.BasicEntity {
+	entity := ecs.NewBasic("AnimationSystem", "RenderSystem", "ControlSystem")
 
 	space := &engo.SpaceComponent{*point, 150, 150}
 	render := engo.NewRenderComponent(spriteSheet.Cell(action.Frames[0]), engo.Point{3, 3}, "hero")
@@ -76,7 +76,7 @@ func (*ControlSystem) Post()        {}
 
 func (c *ControlSystem) New(*ecs.World) {}
 
-func (c *ControlSystem) UpdateEntity(entity *ecs.Entity, dt float32) {
+func (c *ControlSystem) UpdateEntity(entity *ecs.BasicEntity, dt float32) {
 	var a *engo.AnimationComponent
 
 	if !entity.Component(&a) {

@@ -80,7 +80,7 @@ func (*AnimationSystem) Type() string { return "AnimationSystem" }
 func (*AnimationSystem) Pre()         {}
 func (*AnimationSystem) Post()        {}
 
-func (a *AnimationSystem) UpdateEntity(entity *ecs.Entity, dt float32) {
+func (a *AnimationSystem) UpdateEntity(entity *ecs.BasicEntity, dt float32) {
 	var (
 		ac *AnimationComponent
 		r  *RenderComponent

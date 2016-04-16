@@ -25,7 +25,7 @@ func (game *GameWorld) Setup() {
 
 	game.AddSystem(&engo.RenderSystem{})
 
-	gameMap := ecs.NewEntity("RenderSystem")
+	gameMap := ecs.NewBasic("RenderSystem")
 	tilemap := engo.NewTilemap(
 		[][]string{
 			{"0", "2", "0"},

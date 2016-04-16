@@ -14,7 +14,7 @@ func (ns *NilSystem) New(*ecs.World) {}
 
 func (*NilSystem) Pre()                              {}
 func (*NilSystem) Post()                             {}
-func (*NilSystem) UpdateEntity(*ecs.Entity, float32) {}
+func (*NilSystem) UpdateEntity(*ecs.BasicEntity, float32) {}
 
 func (*NilSystem) Type() string {
 	return "NilSystem"
@@ -61,7 +61,7 @@ func BenchmarkEntity10(b *testing.B) {
 	setup := func(w *ecs.World) {
 		w.AddSystem(&NilSystem{})
 		for i := 0; i < count; i++ {
-			w.AddEntity(ecs.NewEntity("NilSystem"))
+			w.AddEntity(ecs.NewBasic("NilSystem"))
 		}
 	}
 	Bench(b, preload, setup)
@@ -75,7 +75,7 @@ func BenchmarkEntity1000(b *testing.B) {
 	setup := func(w *ecs.World) {
 		w.AddSystem(&NilSystem{})
 		for i := 0; i < count; i++ {
-			w.AddEntity(ecs.NewEntity("NilSystem"))
+			w.AddEntity(ecs.NewBasic("NilSystem"))
 		}
 	}
 	Bench(b, preload, setup)

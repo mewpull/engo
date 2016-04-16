@@ -57,7 +57,7 @@ func (as *AudioSystem) New(*ecs.World) {
 	})
 }
 
-func (as *AudioSystem) UpdateEntity(entity *ecs.Entity, dt float32) {
+func (as *AudioSystem) UpdateEntity(entity *ecs.BasicEntity, dt float32) {
 	var ac *AudioComponent
 	var ok bool
 	if ac, ok = entity.ComponentFast(ac).(*AudioComponent); !ok {

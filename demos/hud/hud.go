@@ -19,7 +19,7 @@ var (
 )
 
 // generateBackground creates a background of green tiles - might not be the most efficient way to do this
-func generateBackground() *ecs.Entity {
+func generateBackground() *ecs.BasicEntity {
 	rect := image.Rect(0, 0, int(worldWidth), int(worldHeight))
 	img := image.NewNRGBA(rect)
 	c1 := color.RGBA{102, 153, 0, 255}
@@ -42,7 +42,7 @@ func generateBackground() *ecs.Entity {
 		}
 	}
 	bgTexture := engo.NewImageObjectFromNRGBA(img)
-	field := ecs.NewEntity("RenderSystem")
+	field := ecs.NewBasic("RenderSystem")
 	fieldRender := engo.NewRenderComponent(engo.NewTexture(bgTexture), engo.Point{1, 1}, "Background1")
 	fieldSpace := &engo.SpaceComponent{engo.Point{0, 0}, worldWidth, worldHeight}
 	field.AddComponent(fieldRender)
@@ -51,7 +51,7 @@ func generateBackground() *ecs.Entity {
 }
 
 // generateHUDBackground creates a violet HUD on the left side of the screen - might be inefficient
-func generateHUDBackground(width, height float32) *ecs.Entity {
+func generateHUDBackground(width, height float32) *ecs.BasicEntity {
 	rect := image.Rect(0, 0, int(width), int(height))
 	img := image.NewNRGBA(rect)
 	c1 := color.RGBA{255, 0, 255, 180}
@@ -61,7 +61,7 @@ func generateHUDBackground(width, height float32) *ecs.Entity {
 		}
 	}
 	bgTexture := engo.NewImageObjectFromNRGBA(img)
-	field := ecs.NewEntity("RenderSystem")
+	field := ecs.NewBasic("RenderSystem")
 	fieldRender := engo.NewRenderComponent(engo.NewTexture(bgTexture), engo.Point{1, 1}, "HUDBackground1")
 	fieldRender.SetShader(engo.HUDShader)
 	fieldRender.SetZIndex(1) // A value larger than 0 (default), to ensure being drawn on top of the background

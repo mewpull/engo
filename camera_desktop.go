@@ -13,8 +13,8 @@ type EdgeScroller struct {
 
 func (*EdgeScroller) Type() string             { return "EdgeScroller" }
 func (*EdgeScroller) Priority() int            { return 10 }
-func (*EdgeScroller) AddEntity(*ecs.Entity)    {}
-func (*EdgeScroller) RemoveEntity(*ecs.Entity) {}
+func (*EdgeScroller) AddEntity(*ecs.BasicEntity)    {}
+func (*EdgeScroller) RemoveEntity(*ecs.BasicEntity) {}
 func (*EdgeScroller) New(*ecs.World)           {}
 
 func (c *EdgeScroller) Update(dt float32) {

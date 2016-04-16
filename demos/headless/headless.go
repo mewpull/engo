@@ -36,7 +36,7 @@ func (pong *PongGame) Setup(w *ecs.World) {
 	w.AddSystem(&BallSystem{})
 	w.AddSystem(&ScoreSystem{})
 
-	ball := ecs.NewEntity("RenderSystem", "CollisionSystem", "SpeedSystem", "BallSystem")
+	ball := ecs.NewBasic("RenderSystem", "CollisionSystem", "SpeedSystem", "BallSystem")
 	ballTexture := engo.Files.Image("ball.png")
 	ballRender := engo.NewRenderComponent(ballTexture, engo.Point{2, 2}, "ball")
 	ballSpace := &engo.SpaceComponent{engo.Point{(engo.Width() - ballTexture.Width()) / 2, (engo.Height() - ballTexture.Height()) / 2}, ballTexture.Width() * ballRender.Scale().X, ballTexture.Height() * ballRender.Scale().Y}
@@ -52,7 +52,7 @@ func (pong *PongGame) Setup(w *ecs.World) {
 		log.Println(err)
 	}
 
-	score := ecs.NewEntity("RenderSystem", "ScoreSystem")
+	score := ecs.NewBasic("RenderSystem", "ScoreSystem")
 
 	scoreRender := engo.NewRenderComponent(basicFont.Render(" "), engo.Point{1, 1}, "YOLO <3")
 	scoreSpace := &engo.SpaceComponent{engo.Point{100, 100}, 100, 100}
@@ -65,7 +65,7 @@ func (pong *PongGame) Setup(w *ecs.World) {
 
 	schemes := []string{"WASD", ""}
 	for i := 0; i < 2; i++ {
-		paddle := ecs.NewEntity("RenderSystem", "CollisionSystem", "ControlSystem")
+		paddle := ecs.NewBasic("RenderSystem", "CollisionSystem", "ControlSystem")
 		paddleTexture := engo.Files.Image("paddle.png")
 		paddleRender := engo.NewRenderComponent(paddleTexture, engo.Point{2, 2}, "paddle")
 		x := float32(0)
@@ -112,7 +112,7 @@ func (ms *SpeedSystem) New(*ecs.World) {
 	})
 }
 
-func (ms *SpeedSystem) UpdateEntity(entity *ecs.Entity, dt float32) {
+func (ms *SpeedSystem) UpdateEntity(entity *ecs.BasicEntity, dt float32) {
 	var speed *SpeedComponent
 	var space *engo.SpaceComponent
 	if !entity.Component(&speed) || !entity.Component(&space) {
@@ -140,7 +140,7 @@ func (bs *BallSystem) New(*ecs.World) {}
 
 func (*BallSystem) Type() string { return "BallSystem" }
 
-func (bs *BallSystem) UpdateEntity(entity *ecs.Entity, dt float32) {
+func (bs *BallSystem) UpdateEntity(entity *ecs.BasicEntity, dt float32) {
 	var space *engo.SpaceComponent
 	var speed *SpeedComponent
 	if !entity.Component(&space) || !entity.Component(&speed) {
@@ -184,7 +184,7 @@ func (*ControlSystem) Type() string { return "ControlSystem" }
 
 func (c *ControlSystem) New(*ecs.World) {}
 
-func (c *ControlSystem) UpdateEntity(entity *ecs.Entity, dt float32) {
+func (c *ControlSystem) UpdateEntity(entity *ecs.BasicEntity, dt float32) {
 	//Check scheme
 	// -Move entity based on that
 	var control *ControlComponent
@@ -250,7 +250,7 @@ func (sc *ScoreSystem) New(*ecs.World) {
 	})
 }
 
-func (c *ScoreSystem) UpdateEntity(entity *ecs.Entity, dt float32) {
+func (c *ScoreSystem) UpdateEntity(entity *ecs.BasicEntity, dt float32) {
 	var render *engo.RenderComponent
 	var space *engo.SpaceComponent
 

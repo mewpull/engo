@@ -52,8 +52,8 @@ func (*GameWorld) Show()        {}
 func (*GameWorld) Exit()		{}
 func (*GameWorld) Type() string { return "GameWorld" }
 
-func (game *GameWorld) CreateEntity() *ecs.Entity {
-	entity := ecs.NewEntity("MouseSystem", "RenderSystem", "ControlSystem")
+func (game *GameWorld) CreateEntity() *ecs.BasicEntity {
+	entity := ecs.NewBasic("MouseSystem", "RenderSystem", "ControlSystem")
 
 	entity.AddComponent(generateBackground())
 	entity.AddComponent(&engo.MouseComponent{})
@@ -70,7 +70,7 @@ func (*ControlSystem) Type() string { return "ControlSystem" }
 
 func (c *ControlSystem) New(*ecs.World) {}
 
-func (c *ControlSystem) UpdateEntity(entity *ecs.Entity, dt float32) {
+func (c *ControlSystem) UpdateEntity(entity *ecs.BasicEntity, dt float32) {
 	var mouse *engo.MouseComponent
 	if !entity.Component(&mouse) {
 		return

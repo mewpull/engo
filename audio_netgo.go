@@ -44,4 +44,4 @@ func (as *AudioSystem) New(*ecs.World) {
 	log.Println("Warning: audio is not yet implemented in the browser")
 }
 
-func (as *AudioSystem) UpdateEntity(entity *ecs.Entity, dt float32) {}
+func (as *AudioSystem) UpdateEntity(entity *ecs.BasicEntity, dt float32) {}

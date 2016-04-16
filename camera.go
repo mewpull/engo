@@ -16,7 +16,7 @@ var (
 type cameraSystem struct {
 	ecs.LinearSystem
 	x, y, z  float32
-	tracking *ecs.Entity // The entity that is currently being followed
+	tracking *ecs.BasicEntity // The entity that is currently being followed
 }
 
 func (*cameraSystem) Type() string { return "cameraSystem" }
@@ -56,7 +56,7 @@ func (cam *cameraSystem) New(*ecs.World) {
 	})
 }
 
-func (cam *cameraSystem) FollowEntity(entity *ecs.Entity) {
+func (cam *cameraSystem) FollowEntity(entity *ecs.BasicEntity) {
 	cam.tracking = entity
 	var space *SpaceComponent
 
@@ -102,7 +102,7 @@ func (cam *cameraSystem) Z() float32 {
 	return cam.z
 }
 
-func (cam *cameraSystem) UpdateEntity(entity *ecs.Entity, dt float32) {
+func (cam *cameraSystem) UpdateEntity(entity *ecs.BasicEntity, dt float32) {
 	if cam.tracking == nil {
 		return
 	}
@@ -156,8 +156,8 @@ type KeyboardScroller struct {
 
 func (*KeyboardScroller) Type() string             { return "KeyboardScroller" }
 func (*KeyboardScroller) Priority() int            { return 10 }
-func (*KeyboardScroller) AddEntity(*ecs.Entity)    {}
-func (*KeyboardScroller) RemoveEntity(*ecs.Entity) {}
+func (*KeyboardScroller) AddEntity(*ecs.BasicEntity)    {}
+func (*KeyboardScroller) RemoveEntity(*ecs.BasicEntity) {}
 func (*KeyboardScroller) New(*ecs.World)           {}
 
 func (c *KeyboardScroller) Update(dt float32) {
@@ -218,8 +218,8 @@ type MouseZoomer struct {
 
 func (*MouseZoomer) Type() string             { return "MouseZoomer" }
 func (*MouseZoomer) Priority() int            { return 10 }
-func (*MouseZoomer) AddEntity(*ecs.Entity)    {}
-func (*MouseZoomer) RemoveEntity(*ecs.Entity) {}
+func (*MouseZoomer) AddEntity(*ecs.BasicEntity)    {}
+func (*MouseZoomer) RemoveEntity(*ecs.BasicEntity) {}
 func (*MouseZoomer) New(*ecs.World)           {}
 
 func (c *MouseZoomer) Update(dt float32) {

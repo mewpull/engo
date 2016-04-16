@@ -26,7 +26,7 @@ func (game *GameWorld) Setup(w *ecs.World) {
 	w.AddSystem(&engo.RenderSystem{})
 	w.AddSystem(&ScaleSystem{})
 
-	guy := ecs.NewEntity("RenderSystem", "ScaleSystem")
+	guy := ecs.NewBasic("RenderSystem", "ScaleSystem")
 	texture := engo.Files.Image("icon.png")
 	render := engo.NewRenderComponent(texture, engo.Point{8, 8}, "guy")
 	collision := &engo.CollisionComponent{Solid: true, Main: true}
@@ -59,7 +59,7 @@ func (*ScaleSystem) Type() string { return "ScaleSystem" }
 
 func (s *ScaleSystem) New(*ecs.World) {}
 
-func (c *ScaleSystem) UpdateEntity(entity *ecs.Entity, dt float32) {
+func (c *ScaleSystem) UpdateEntity(entity *ecs.BasicEntity, dt float32) {
 	var render *engo.RenderComponent
 	if !entity.Component(&render) {
 		return
