@@ -86,6 +86,7 @@ func (game *Game) Setup(w *ecs.World) {
 	err := w.AddEntity(generateBackground())
 	if err != nil {
 		log.Println(err)
+		return
 	}
 
 	// Creating the HUD
@@ -97,6 +98,7 @@ func (game *Game) Setup(w *ecs.World) {
 	err = w.AddEntity(hudBg)
 	if err != nil {
 		log.Println(err)
+		return
 	}
 }
 
