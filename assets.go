@@ -1,6 +1,7 @@
 package engo
 
 import (
+	"image"
 	"image/color"
 	"io/ioutil"
 	"log"
@@ -8,6 +9,7 @@ import (
 	"path"
 
 	"engo.io/webgl"
+	"github.com/golang/freetype"
 	"github.com/golang/freetype/truetype"
 	"github.com/luxengine/math"
 )
@@ -255,3 +257,64 @@ func NewSprite(region *Region, x, y float32) *Sprite {
 		Region:   region,
 	}
 }
+
+func NewImageRGBA(img *image.RGBA) *ImageRGBA {
+	return &ImageRGBA{img}
+}
+
+type ImageRGBA struct {
+	data *image.RGBA
+}
+
+func (i *ImageRGBA) Data() interface{} {
+	return i.data
+}
+
+func (i *ImageRGBA) Width() int {
+	return i.data.Rect.Max.X
+}
+
+func (i *ImageRGBA) Height() int {
+	return i.data.Rect.Max.Y
+}
+
+func loadFont(r Resource) (*truetype.Font, error) {
+	ttfBytes, err := ioutil.ReadFile(r.url)
+	if err != nil {
+		return nil, err
+	}
+
+	return freetype.ParseFont(ttfBytes)
+}
+
+/* not sure if used?
+type Assets struct {
+	queue  []string
+	cache  map[string]Image
+	loads  int
+	errors int
+}
+
+func NewAssets() *Assets {
+	return &Assets{make([]string, 0), make(map[string]Image), 0, 0}
+}
+
+func (a *Assets) Image(path string) {
+	a.queue = append(a.queue, path)
+}
+
+func (a *Assets) Get(path string) Image {
+	return a.cache[path]
+}
+
+func (a *Assets) Load(onFinish func()) {
+	if len(a.queue) == 0 {
+		onFinish()
+	} else {
+		for _, path := range a.queue {
+			img := LoadImage(path)
+			a.cache[path] = img
+		}
+	}
+}
+*/

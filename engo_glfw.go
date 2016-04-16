@@ -24,18 +24,15 @@ import (
 var (
 	window *glfw.Window
 
-	Arrow              *glfw.Cursor
-	IBeam              *glfw.Cursor
-	Crosshair          *glfw.Cursor
-	Hand               *glfw.Cursor
-	HResize            *glfw.Cursor
-	VResize            *glfw.Cursor
-	defaultCloseAction bool
-	close              bool
+	Arrow     *glfw.Cursor
+	IBeam     *glfw.Cursor
+	Crosshair *glfw.Cursor
+	Hand      *glfw.Cursor
+	HResize   *glfw.Cursor
+	VResize   *glfw.Cursor
 
 	headlessWidth             = 800
 	headlessHeight            = 800
-	gameWidth, gameHeight     float32
 	windowWidth, windowHeight float32
 )
 
@@ -186,10 +183,6 @@ func SetTitle(title string) {
 	}
 }
 
-func runHeadless(defaultScene Scene) {
-	runLoop(defaultScene, true)
-}
-
 // RunIteration runs one iteration / frame
 func RunIteration() {
 	// First check for new keypresses
@@ -205,73 +198,12 @@ func RunIteration() {
 	if !headless {
 		Mouse.ScrollX, Mouse.ScrollY = 0, 0
 		window.SwapBuffers()
+		if window.ShouldClose() {
+			closeEvent()
+		}
 	}
 
 	Time.Tick()
-}
-
-// RunPreparation is called only once, and is called automatically when calling Open
-// It is only here for benchmarking in combination with OpenHeadlessNoRun
-func RunPreparation(defaultScene Scene) {
-	keyStates = make(map[Key]bool)
-	Time = NewClock()
-	Files = NewLoader()
-
-	// Default WorldBounds values
-	WorldBounds.Max = Point{Width(), Height()}
-
-	SetScene(defaultScene, false)
-}
-
-func closeEvent() {
-	for _, scenes := range scenes {
-		scenes.scene.Exit()
-	}
-
-	if defaultCloseAction {
-		Exit()
-	} else {
-		log.Println("Warning: default close action set to false, please make sure you manually handle this")
-	}
-}
-
-func runLoop(defaultScene Scene, headless bool) {
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
-	signal.Notify(c, syscall.SIGTERM)
-	go func() {
-		<-c
-		closeEvent()
-	}()
-
-	RunPreparation(defaultScene)
-
-	ticker := time.NewTicker(time.Duration(int(time.Second) / fpsLimit))
-Outer:
-	for {
-		select {
-		case <-ticker.C:
-			RunIteration()
-			if close {
-				break Outer
-			}
-			if !headless && window.ShouldClose() {
-				closeEvent()
-			}
-		case <-resetLoopTicker:
-			ticker.Stop()
-			ticker = time.NewTicker(time.Duration(int(time.Second) / fpsLimit))
-		}
-	}
-	ticker.Stop()
-}
-
-func Width() float32 {
-	return gameWidth
-}
-
-func Height() float32 {
-	return gameHeight
 }
 
 func WindowWidth() float32 {
@@ -280,10 +212,6 @@ func WindowWidth() float32 {
 
 func WindowHeight() float32 {
 	return windowHeight
-}
-
-func Exit() {
-	close = true
 }
 
 func SetCursor(c *glfw.Cursor) {
@@ -404,143 +332,4 @@ func init() {
 	NumNine = Key(glfw.KeyKP9)
 	NumDecimal = Key(glfw.KeyKPDecimal)
 	NumEnter = Key(glfw.KeyKPEnter)
-}
-
-func NewImageRGBA(img *image.RGBA) *ImageRGBA {
-	return &ImageRGBA{img}
-}
-
-type ImageRGBA struct {
-	data *image.RGBA
-}
-
-func (i *ImageRGBA) Data() interface{} {
-	return i.data
-}
-
-func (i *ImageRGBA) Width() int {
-	return i.data.Rect.Max.X
-}
-
-func (i *ImageRGBA) Height() int {
-	return i.data.Rect.Max.Y
-}
-
-func NewImageObject(img *image.NRGBA) *ImageObject {
-	return &ImageObject{img}
-}
-
-type ImageObject struct {
-	data *image.NRGBA
-}
-
-func (i *ImageObject) Data() interface{} {
-	return i.data
-}
-
-func (i *ImageObject) Width() int {
-	return i.data.Rect.Max.X
-}
-
-func (i *ImageObject) Height() int {
-	return i.data.Rect.Max.Y
-}
-
-func loadImage(r Resource) (Image, error) {
-	file, err := os.Open(r.url)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-	img, _, err := image.Decode(file)
-	if err != nil {
-		return nil, err
-	}
-
-	b := img.Bounds()
-	newm := image.NewNRGBA(image.Rect(0, 0, b.Dx(), b.Dy()))
-	draw.Draw(newm, newm.Bounds(), img, b.Min, draw.Src)
-
-	return &ImageObject{newm}, nil
-}
-
-func loadJSON(r Resource) (string, error) {
-	file, err := ioutil.ReadFile(r.url)
-	if err != nil {
-		return "", err
-	}
-	return string(file), nil
-}
-
-func loadFont(r Resource) (*truetype.Font, error) {
-	ttfBytes, err := ioutil.ReadFile(r.url)
-	if err != nil {
-		return nil, err
-	}
-
-	return freetype.ParseFont(ttfBytes)
-}
-
-type Assets struct {
-	queue  []string
-	cache  map[string]Image
-	loads  int
-	errors int
-}
-
-func NewAssets() *Assets {
-	return &Assets{make([]string, 0), make(map[string]Image), 0, 0}
-}
-
-func (a *Assets) Image(path string) {
-	a.queue = append(a.queue, path)
-}
-
-func (a *Assets) Get(path string) Image {
-	return a.cache[path]
-}
-
-func (a *Assets) Load(onFinish func()) {
-	if len(a.queue) == 0 {
-		onFinish()
-	} else {
-		for _, path := range a.queue {
-			img := LoadImage(path)
-			a.cache[path] = img
-		}
-	}
-}
-
-func LoadImage(data interface{}) Image {
-	var m image.Image
-
-	switch data := data.(type) {
-	default:
-		log.Fatal("NewTexture needs a string or io.Reader")
-	case string:
-		file, err := os.Open(data)
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer file.Close()
-		img, _, err := image.Decode(file)
-		if err != nil {
-			log.Fatal(err)
-		}
-		m = img
-	case io.Reader:
-		img, _, err := image.Decode(data)
-		if err != nil {
-			log.Fatal(err)
-		}
-		m = img
-	case image.Image:
-		m = data
-	}
-
-	b := m.Bounds()
-	newm := image.NewNRGBA(image.Rect(0, 0, b.Dx(), b.Dy()))
-	draw.Draw(newm, newm.Bounds(), m, b.Min, draw.Src)
-
-	return &ImageObject{newm}
 }
