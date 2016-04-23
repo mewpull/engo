@@ -5,55 +5,64 @@ import (
 
 	"engo.io/ecs"
 	"engo.io/engo"
+	"engo.io/engo/animation"
+	"engo.io/engo/assets"
+	"engo.io/engo/camera"
+	"engo.io/engo/input"
+	"engo.io/engo/math"
+	"engo.io/engo/render"
+	"engo.io/engo/space"
+	"engo.io/engo/spritesheet"
+	"engo.io/engo/window"
 )
 
 var (
 	zoomSpeed   float32 = -0.125
-	RunAction   *engo.AnimationAction
-	WalkAction  *engo.AnimationAction
-	StopAction  *engo.AnimationAction
-	SkillAction *engo.AnimationAction
-	DieAction   *engo.AnimationAction
-	actions     []*engo.AnimationAction
+	RunAction   *animation.AnimationAction
+	WalkAction  *animation.AnimationAction
+	StopAction  *animation.AnimationAction
+	SkillAction *animation.AnimationAction
+	DieAction   *animation.AnimationAction
+	actions     []*animation.AnimationAction
 )
 
 type DefaultScene struct{}
 
 type Animation struct {
 	ecs.BasicEntity
-	engo.AnimationComponent
-	engo.RenderComponent
-	engo.SpaceComponent
+	animation.AnimationComponent
+	render.RenderComponent
+	space.SpaceComponent
 }
 
 func (*DefaultScene) Preload() {
-	engo.Files.Add("assets/hero.png")
-	StopAction = &engo.AnimationAction{Name: "stop", Frames: []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10}}
-	RunAction = &engo.AnimationAction{Name: "run", Frames: []int{16, 17, 18, 19, 20, 21}}
-	WalkAction = &engo.AnimationAction{Name: "move", Frames: []int{11, 12, 13, 14, 15}}
-	SkillAction = &engo.AnimationAction{Name: "skill", Frames: []int{44, 45, 46, 47, 48, 49, 50, 51, 52, 53}}
-	DieAction = &engo.AnimationAction{Name: "die", Frames: []int{28, 29, 30}}
-	actions = []*engo.AnimationAction{DieAction, StopAction, WalkAction, RunAction, SkillAction}
+	assets.Files.Add("assets/hero.png")
+	StopAction = &animation.AnimationAction{Name: "stop", Frames: []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10}}
+	RunAction = &animation.AnimationAction{Name: "run", Frames: []int{16, 17, 18, 19, 20, 21}}
+	WalkAction = &animation.AnimationAction{Name: "move", Frames: []int{11, 12, 13, 14, 15}}
+	SkillAction = &animation.AnimationAction{Name: "skill", Frames: []int{44, 45, 46, 47, 48, 49, 50, 51, 52, 53}}
+	DieAction = &animation.AnimationAction{Name: "die", Frames: []int{28, 29, 30}}
+	actions = []*animation.AnimationAction{DieAction, StopAction, WalkAction, RunAction, SkillAction}
 }
 
 func (scene *DefaultScene) Setup(w *ecs.World) {
-	engo.SetBackground(color.White)
+	window.SetBackground(color.White)
 
-	w.AddSystem(&engo.RenderSystem{})
-	w.AddSystem(&engo.AnimationSystem{})
+	w.AddSystem(&render.RenderSystem{})
+	w.AddSystem(&animation.AnimationSystem{})
 	w.AddSystem(&ControlSystem{})
-	w.AddSystem(&engo.MouseZoomer{zoomSpeed})
+	w.AddSystem(&camera.MouseZoomer{zoomSpeed})
 
-	spriteSheet := engo.NewSpritesheetFromFile("hero.png", 150, 150)
+	spriteSheet := spritesheet.NewSpritesheetFromFile("hero.png", 150, 150)
 
-	hero := scene.CreateEntity(&engo.Point{0, 0}, spriteSheet, StopAction)
+	hero := scene.CreateEntity(&math.Point{0, 0}, spriteSheet, StopAction)
 
 	// Add our hero to the appropriate systems
 	for _, system := range w.Systems() {
 		switch sys := system.(type) {
-		case *engo.RenderSystem:
+		case *render.RenderSystem:
 			sys.Add(&hero.BasicEntity, &hero.RenderComponent, &hero.SpaceComponent)
-		case *engo.AnimationSystem:
+		case *animation.AnimationSystem:
 			sys.Add(&hero.BasicEntity, &hero.AnimationComponent, &hero.RenderComponent)
 		case *ControlSystem:
 			sys.Add(&hero.BasicEntity, &hero.AnimationComponent)
@@ -63,12 +72,12 @@ func (scene *DefaultScene) Setup(w *ecs.World) {
 
 func (*DefaultScene) Type() string { return "GameWorld" }
 
-func (*DefaultScene) CreateEntity(point *engo.Point, spriteSheet *engo.Spritesheet, action *engo.AnimationAction) *Animation {
+func (*DefaultScene) CreateEntity(point *math.Point, spriteSheet *spritesheet.Spritesheet, action *animation.AnimationAction) *Animation {
 	entity := &Animation{BasicEntity: ecs.NewBasic()}
 
-	entity.SpaceComponent = engo.SpaceComponent{*point, 150, 150}
-	entity.RenderComponent = engo.NewRenderComponent(spriteSheet.Cell(action.Frames[0]), engo.Point{3, 3}, "hero")
-	entity.AnimationComponent = engo.NewAnimationComponent(spriteSheet.Drawables(), 0.1)
+	entity.SpaceComponent = space.SpaceComponent{*point, 150, 150}
+	entity.RenderComponent = render.NewRenderComponent(spriteSheet.Cell(action.Frames[0]), math.Point{3, 3}, "hero")
+	entity.AnimationComponent = animation.NewAnimationComponent(spriteSheet.Drawables(), 0.1)
 	entity.AnimationComponent.AddAnimationActions(actions)
 	entity.AnimationComponent.SelectAnimationByAction(action)
 
@@ -77,14 +86,14 @@ func (*DefaultScene) CreateEntity(point *engo.Point, spriteSheet *engo.Spriteshe
 
 type controlEntity struct {
 	*ecs.BasicEntity
-	*engo.AnimationComponent
+	*animation.AnimationComponent
 }
 
 type ControlSystem struct {
 	entities []controlEntity
 }
 
-func (c *ControlSystem) Add(basic *ecs.BasicEntity, anim *engo.AnimationComponent) {
+func (c *ControlSystem) Add(basic *ecs.BasicEntity, anim *animation.AnimationComponent) {
 	c.entities = append(c.entities, controlEntity{basic, anim})
 }
 
@@ -103,9 +112,9 @@ func (c *ControlSystem) Remove(basic ecs.BasicEntity) {
 
 func (c *ControlSystem) Update(dt float32) {
 	for _, e := range c.entities {
-		if engo.Keys.Get(engo.ArrowRight).Down() {
+		if input.Keys.Get(input.ArrowRight).Down() {
 			e.AnimationComponent.SelectAnimationByAction(WalkAction)
-		} else if engo.Keys.Get(engo.Space).Down() {
+		} else if input.Keys.Get(input.Space).Down() {
 			e.AnimationComponent.SelectAnimationByAction(SkillAction)
 		} else {
 			e.AnimationComponent.SelectAnimationByAction(StopAction)

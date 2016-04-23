@@ -1,29 +1,10 @@
 package engo // import "engo.io/engo"
 
 import (
-	"fmt"
-	"image/color"
-
-	"engo.io/ecs"
-	"engo.io/gl"
-)
-
-var (
-	Time        *Clock
-	Files       *Loader
-	Gl          *gl.Context
-	WorldBounds AABB
-
-	currentWorld *ecs.World
-	currentScene Scene
-	Mailbox      *MessageManager
-	cam          *cameraSystem
-
-	scaleOnResize   = false
-	fpsLimit        = 60
-	headless        = false
-	vsync           = true
-	resetLoopTicker = make(chan bool, 1)
+	internalengo "engo.io/engo/internal/engo"
+	internalwindow "engo.io/engo/internal/window"
+	"engo.io/engo/scene"
+	"engo.io/engo/window"
 )
 
 type RunOptions struct {
@@ -54,50 +35,25 @@ type RunOptions struct {
 	OverrideCloseAction bool
 }
 
-func Run(opts RunOptions, defaultScene Scene) {
+func Run(opts RunOptions, defaultScene scene.Scene) {
 	// Save settings
-	SetScaleOnResize(opts.ScaleOnResize)
-	SetFPSLimit(opts.FPSLimit)
-	vsync = opts.VSync
-	defaultCloseAction = !opts.OverrideCloseAction
+	window.SetScaleOnResize(opts.ScaleOnResize)
+	window.SetFPSLimit(opts.FPSLimit)
+	internalwindow.Vsync = opts.VSync
+	window.SetOverrideCloseAction(opts.OverrideCloseAction)
 
 	if opts.HeadlessMode {
-		headless = true
+		internalengo.Headless = true
 
 		if !opts.NoRun {
-			runHeadless(defaultScene)
+			window.RunHeadless(defaultScene)
 		}
 	} else {
-		CreateWindow(opts.Title, opts.Width, opts.Height, opts.Fullscreen)
-		defer DestroyWindow()
+		window.CreateWindow(opts.Title, opts.Width, opts.Height, opts.Fullscreen)
+		defer window.DestroyWindow()
 
 		if !opts.NoRun {
-			runLoop(defaultScene, false)
+			window.RunLoop(defaultScene, false)
 		}
 	}
-}
-
-func SetBackground(c color.Color) {
-	if !headless {
-		r, g, b, a := c.RGBA()
-
-		Gl.ClearColor(float32(r), float32(g), float32(b), float32(a))
-	}
-}
-
-func SetScaleOnResize(b bool) {
-	scaleOnResize = b
-}
-
-func SetOverrideCloseAction(value bool) {
-	defaultCloseAction = !value
-}
-
-func SetFPSLimit(limit int) error {
-	if limit <= 0 {
-		return fmt.Errorf("FPS Limit out of bounds. Requires > 0")
-	}
-	fpsLimit = limit
-	resetLoopTicker <- true
-	return nil
 }

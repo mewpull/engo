@@ -5,7 +5,10 @@ import (
 
 	"engo.io/ecs"
 	"engo.io/engo"
+	"engo.io/engo/camera"
 	"engo.io/engo/demos/demoutils"
+	"engo.io/engo/render"
+	"engo.io/engo/window"
 )
 
 type DefaultScene struct{}
@@ -22,11 +25,11 @@ func (*DefaultScene) Preload() {}
 
 // Setup is called before the main loop is started
 func (*DefaultScene) Setup(w *ecs.World) {
-	engo.SetBackground(color.White)
-	w.AddSystem(&engo.RenderSystem{})
+	window.SetBackground(color.White)
+	w.AddSystem(&render.RenderSystem{})
 
 	// The most important line in this whole demo:
-	w.AddSystem(&engo.EdgeScroller{scrollSpeed, edgeMargin})
+	w.AddSystem(&camera.EdgeScroller{scrollSpeed, edgeMargin})
 
 	// Create the background; this way we'll see when we actually scroll
 	demoutils.NewBackground(w, worldWidth, worldHeight, color.RGBA{102, 153, 0, 255}, color.RGBA{102, 173, 0, 255})

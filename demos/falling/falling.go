@@ -7,60 +7,68 @@ import (
 
 	"engo.io/ecs"
 	"engo.io/engo"
+	"engo.io/engo/assets"
+	"engo.io/engo/collision"
+	"engo.io/engo/input"
+	"engo.io/engo/math"
+	"engo.io/engo/message"
+	"engo.io/engo/render"
+	"engo.io/engo/space"
+	"engo.io/engo/window"
 )
 
 type Guy struct {
 	ecs.BasicEntity
-	engo.CollisionComponent
-	engo.RenderComponent
-	engo.SpaceComponent
+	collision.CollisionComponent
+	render.RenderComponent
+	space.SpaceComponent
 }
 
 type Rock struct {
 	ecs.BasicEntity
-	engo.CollisionComponent
-	engo.RenderComponent
-	engo.SpaceComponent
+	collision.CollisionComponent
+	render.RenderComponent
+	space.SpaceComponent
 }
 
 type DefaultScene struct{}
 
 func (*DefaultScene) Preload() {
 	// Add all the files in the data directory non recursively
-	engo.Files.AddFromDir("data", false)
+	assets.Files.AddFromDir("data", false)
 }
 
 func (*DefaultScene) Setup(w *ecs.World) {
-	engo.SetBackground(color.White)
+	window.SetBackground(color.White)
 
 	// Add all of the systems
-	w.AddSystem(&engo.RenderSystem{})
-	w.AddSystem(&engo.CollisionSystem{})
+	w.AddSystem(&render.RenderSystem{})
+	w.AddSystem(&collision.CollisionSystem{})
 	w.AddSystem(&DeathSystem{})
 	w.AddSystem(&FallingSystem{})
 	w.AddSystem(&ControlSystem{})
 	w.AddSystem(&RockSpawnSystem{})
 
-	texture := engo.Files.Image("icon.png")
+	texture := assets.Files.Image("icon.png")
 
 	// Create an entity
 	guy := Guy{BasicEntity: ecs.NewBasic()}
 
 	// Initialize the components, set scale to 4x
-	guy.RenderComponent = engo.NewRenderComponent(texture, engo.Point{4, 4}, "guy")
-	guy.SpaceComponent = engo.SpaceComponent{
-		Position: engo.Point{0, 0},
+	guy.RenderComponent = render.NewRenderComponent(texture, math.Point{4, 4}, "guy")
+	guy.SpaceComponent = space.SpaceComponent{
+		Position: math.Point{0, 0},
 		Width:    texture.Width() * guy.RenderComponent.Scale().X,
 		Height:   texture.Height() * guy.RenderComponent.Scale().Y,
 	}
-	guy.CollisionComponent = engo.CollisionComponent{Solid: true, Main: true}
+	guy.CollisionComponent = collision.CollisionComponent{Solid: true, Main: true}
 
 	// Add it to appropriate systems
 	for _, system := range w.Systems() {
 		switch sys := system.(type) {
-		case *engo.RenderSystem:
+		case *render.RenderSystem:
 			sys.Add(&guy.BasicEntity, &guy.RenderComponent, &guy.SpaceComponent)
-		case *engo.CollisionSystem:
+		case *collision.CollisionSystem:
 			sys.Add(&guy.BasicEntity, &guy.CollisionComponent, &guy.SpaceComponent)
 		case *ControlSystem:
 			sys.Add(&guy.BasicEntity, &guy.SpaceComponent)
@@ -72,14 +80,14 @@ func (*DefaultScene) Type() string { return "Game" }
 
 type controlEntity struct {
 	*ecs.BasicEntity
-	*engo.SpaceComponent
+	*space.SpaceComponent
 }
 
 type ControlSystem struct {
 	entities []controlEntity
 }
 
-func (c *ControlSystem) Add(basic *ecs.BasicEntity, space *engo.SpaceComponent) {
+func (c *ControlSystem) Add(basic *ecs.BasicEntity, space *space.SpaceComponent) {
 	c.entities = append(c.entities, controlEntity{basic, space})
 }
 
@@ -100,19 +108,19 @@ func (c *ControlSystem) Update(dt float32) {
 	speed := 400 * dt
 
 	for _, e := range c.entities {
-		if engo.Keys.Get(engo.A).Down() {
+		if input.Keys.Get(input.A).Down() {
 			e.SpaceComponent.Position.X -= speed
 		}
 
-		if engo.Keys.Get(engo.D).Down() {
+		if input.Keys.Get(input.D).Down() {
 			e.SpaceComponent.Position.X += speed
 		}
 
-		if engo.Keys.Get(engo.W).Down() {
+		if input.Keys.Get(input.W).Down() {
 			e.SpaceComponent.Position.Y -= speed
 		}
 
-		if engo.Keys.Get(engo.S).Down() {
+		if input.Keys.Get(input.S).Down() {
 			e.SpaceComponent.Position.Y += speed
 		}
 	}
@@ -134,30 +142,30 @@ func (rock *RockSpawnSystem) Update(dt float32) {
 		return
 	}
 
-	position := engo.Point{
-		X: rand.Float32() * engo.Width(),
+	position := math.Point{
+		X: rand.Float32() * window.Width(),
 		Y: -32,
 	}
 	NewRock(rock.world, position)
 }
 
-func NewRock(world *ecs.World, position engo.Point) {
-	texture := engo.Files.Image("rock.png")
+func NewRock(world *ecs.World, position math.Point) {
+	texture := assets.Files.Image("rock.png")
 
 	rock := Rock{BasicEntity: ecs.NewBasic()}
-	rock.RenderComponent = engo.NewRenderComponent(texture, engo.Point{4, 4}, "rock")
-	rock.SpaceComponent = engo.SpaceComponent{
+	rock.RenderComponent = render.NewRenderComponent(texture, math.Point{4, 4}, "rock")
+	rock.SpaceComponent = space.SpaceComponent{
 		Position: position,
 		Width:    texture.Width() * rock.RenderComponent.Scale().X,
 		Height:   texture.Height() * rock.RenderComponent.Scale().Y,
 	}
-	rock.CollisionComponent = engo.CollisionComponent{Solid: true}
+	rock.CollisionComponent = collision.CollisionComponent{Solid: true}
 
 	for _, system := range world.Systems() {
 		switch sys := system.(type) {
-		case *engo.RenderSystem:
+		case *render.RenderSystem:
 			sys.Add(&rock.BasicEntity, &rock.RenderComponent, &rock.SpaceComponent)
-		case *engo.CollisionSystem:
+		case *collision.CollisionSystem:
 			sys.Add(&rock.BasicEntity, &rock.CollisionComponent, &rock.SpaceComponent)
 		case *FallingSystem:
 			sys.Add(&rock.BasicEntity, &rock.SpaceComponent)
@@ -167,14 +175,14 @@ func NewRock(world *ecs.World, position engo.Point) {
 
 type fallingEntity struct {
 	*ecs.BasicEntity
-	*engo.SpaceComponent
+	*space.SpaceComponent
 }
 
 type FallingSystem struct {
 	entities []fallingEntity
 }
 
-func (f *FallingSystem) Add(basic *ecs.BasicEntity, space *engo.SpaceComponent) {
+func (f *FallingSystem) Add(basic *ecs.BasicEntity, space *space.SpaceComponent) {
 	f.entities = append(f.entities, fallingEntity{basic, space})
 }
 
@@ -201,8 +209,8 @@ type DeathSystem struct{}
 
 func (*DeathSystem) New(*ecs.World) {
 	// Subscribe to ScoreMessage
-	engo.Mailbox.Listen("CollisionMessage", func(message engo.Message) {
-		_, isCollision := message.(engo.CollisionMessage)
+	message.Mailbox.Listen("CollisionMessage", func(message message.Message) {
+		_, isCollision := message.(collision.CollisionMessage)
 		if isCollision {
 			log.Println("DEAD")
 		}

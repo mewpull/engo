@@ -5,6 +5,7 @@ import (
 
 	"engo.io/ecs"
 	"engo.io/engo"
+	"engo.io/engo/window"
 )
 
 type DefaultScene struct{}
@@ -16,7 +17,7 @@ func (*DefaultScene) Exit() {
 	log.Println("Exit event called; we can do whatever we want now")
 	// Here if you want you can prompt the user if they're sure they want to close
 	log.Println("Manually closing")
-	engo.Exit()
+	window.Exit()
 }
 
 func (*DefaultScene) Type() string { return "Game" }

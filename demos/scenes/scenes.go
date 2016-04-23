@@ -8,6 +8,12 @@ import (
 
 	"engo.io/ecs"
 	"engo.io/engo"
+	"engo.io/engo/assets"
+	"engo.io/engo/math"
+	"engo.io/engo/render"
+	"engo.io/engo/scene"
+	"engo.io/engo/space"
+	"engo.io/engo/window"
 )
 
 var (
@@ -17,40 +23,40 @@ var (
 
 type Guy struct {
 	ecs.BasicEntity
-	engo.RenderComponent
-	engo.SpaceComponent
+	render.RenderComponent
+	space.SpaceComponent
 }
 
 type Rock struct {
 	ecs.BasicEntity
-	engo.RenderComponent
-	engo.SpaceComponent
+	render.RenderComponent
+	space.SpaceComponent
 }
 
 // IconScene is responsible for managing the icon
 type IconScene struct{}
 
 func (*IconScene) Preload() {
-	engo.Files.Add("data/icon.png")
+	assets.Files.Add("data/icon.png")
 }
 
 func (*IconScene) Setup(w *ecs.World) {
-	engo.SetBackground(color.White)
+	window.SetBackground(color.White)
 
-	w.AddSystem(&engo.RenderSystem{})
+	w.AddSystem(&render.RenderSystem{})
 	w.AddSystem(&ScaleSystem{})
 	w.AddSystem(&SceneSwitcherSystem{NextScene: "RockScene", WaitTime: time.Second * 3})
 
 	// Retrieve a texture
-	texture := engo.Files.Image("icon.png")
+	texture := assets.Files.Image("icon.png")
 
 	// Create an entity
 	guy := Guy{BasicEntity: ecs.NewBasic()}
 
 	// Initialize the components, set scale to 8x
-	guy.RenderComponent = engo.NewRenderComponent(texture, engo.Point{8, 8}, "guy")
-	guy.SpaceComponent = engo.SpaceComponent{
-		Position: engo.Point{0, 0},
+	guy.RenderComponent = render.NewRenderComponent(texture, math.Point{8, 8}, "guy")
+	guy.SpaceComponent = space.SpaceComponent{
+		Position: math.Point{0, 0},
 		Width:    texture.Width() * guy.RenderComponent.Scale().X,
 		Height:   texture.Height() * guy.RenderComponent.Scale().Y,
 	}
@@ -58,7 +64,7 @@ func (*IconScene) Setup(w *ecs.World) {
 	// Add it to appropriate systems
 	for _, system := range w.Systems() {
 		switch sys := system.(type) {
-		case *engo.RenderSystem:
+		case *render.RenderSystem:
 			sys.Add(&guy.BasicEntity, &guy.RenderComponent, &guy.SpaceComponent)
 		case *ScaleSystem:
 			sys.Add(&guy.BasicEntity, &guy.RenderComponent)
@@ -80,26 +86,26 @@ func (*IconScene) Type() string { return "IconScene" }
 type RockScene struct{}
 
 func (*RockScene) Preload() {
-	engo.Files.Add("data/rock.png")
+	assets.Files.Add("data/rock.png")
 }
 
 func (game *RockScene) Setup(w *ecs.World) {
-	engo.SetBackground(color.White)
+	window.SetBackground(color.White)
 
-	w.AddSystem(&engo.RenderSystem{})
+	w.AddSystem(&render.RenderSystem{})
 	w.AddSystem(&ScaleSystem{})
 	w.AddSystem(&SceneSwitcherSystem{NextScene: "IconScene", WaitTime: time.Second * 3})
 
 	// Retrieve a texture
-	texture := engo.Files.Image("rock.png")
+	texture := assets.Files.Image("rock.png")
 
 	// Create an entity
 	rock := Rock{BasicEntity: ecs.NewBasic()}
 
 	// Initialize the components, set scale to 8x
-	rock.RenderComponent = engo.NewRenderComponent(texture, engo.Point{8, 8}, "rock")
-	rock.SpaceComponent = engo.SpaceComponent{
-		Position: engo.Point{0, 0},
+	rock.RenderComponent = render.NewRenderComponent(texture, math.Point{8, 8}, "rock")
+	rock.SpaceComponent = space.SpaceComponent{
+		Position: math.Point{0, 0},
 		Width:    texture.Width() * rock.RenderComponent.Scale().X,
 		Height:   texture.Height() * rock.RenderComponent.Scale().Y,
 	}
@@ -107,7 +113,7 @@ func (game *RockScene) Setup(w *ecs.World) {
 	// Add it to appropriate systems
 	for _, system := range w.Systems() {
 		switch sys := system.(type) {
-		case *engo.RenderSystem:
+		case *render.RenderSystem:
 			sys.Add(&rock.BasicEntity, &rock.RenderComponent, &rock.SpaceComponent)
 		case *ScaleSystem:
 			sys.Add(&rock.BasicEntity, &rock.RenderComponent)
@@ -141,7 +147,7 @@ func (s *SceneSwitcherSystem) Update(dt float32) {
 		s.secondsWaited = 0
 
 		// Change the world to s.NextScene, and don't override / force World re-creation
-		engo.SetSceneByName(s.NextScene, false)
+		scene.SetSceneByName(s.NextScene, false)
 
 		log.Println("Switched to", s.NextScene)
 	}
@@ -149,14 +155,14 @@ func (s *SceneSwitcherSystem) Update(dt float32) {
 
 type scaleEntity struct {
 	*ecs.BasicEntity
-	*engo.RenderComponent
+	*render.RenderComponent
 }
 
 type ScaleSystem struct {
 	entities []scaleEntity
 }
 
-func (s *ScaleSystem) Add(basic *ecs.BasicEntity, render *engo.RenderComponent) {
+func (s *ScaleSystem) Add(basic *ecs.BasicEntity, render *render.RenderComponent) {
 	s.entities = append(s.entities, scaleEntity{basic, render})
 }
 
@@ -199,7 +205,7 @@ func main() {
 
 	// Register other Scenes for later use, this can be done from anywhere, as long as it
 	// happens before calling engo.SetSceneByName
-	engo.RegisterScene(rockScene)
+	scene.RegisterScene(rockScene)
 
 	opts := engo.RunOptions{
 		Title:  "Scenes Demo",
